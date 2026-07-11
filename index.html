@@ -30,6 +30,7 @@
             overflow: hidden;
         }
 
+        /* Tela de Entrada Otimizada para Caber no Campo de Visão */
         .input-overlay {
             position: fixed;
             inset: 0;
@@ -44,12 +45,12 @@
         .config-card {
             background: #0f172a;
             width: 100%;
-            max-width: 440px; /* Reduzido de 500px */
-            border-radius: 32px; /* Mais compacto */
-            padding: 28px; /* Reduzido de 40px */
+            max-width: 440px;
+            border-radius: 32px;
+            padding: 28px;
             border: 1px solid #1e293b;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            max-height: 90vh; /* Garante que não ultrapasse a tela */
+            max-height: 95vh;
             overflow-y: auto;
         }
 
@@ -58,7 +59,7 @@
             background: rgba(2, 6, 23, 0.6);
             border: 1px solid #1e293b;
             border-radius: 16px;
-            padding: 14px 18px; /* Mais compacto */
+            padding: 14px 18px;
             color: white;
             outline: none;
             transition: all 0.2s;
@@ -86,7 +87,7 @@
 
         .tier-option {
             flex: 1;
-            padding: 10px 2px; /* Mais compacto */
+            padding: 10px 2px;
             text-align: center;
             font-size: 9px;
             font-weight: 800;
@@ -102,7 +103,7 @@
             color: black;
         }
 
-        /* View sections e navegacao mantidos */
+        /* Interface Principal do Roteiro */
         .day-carousel {
             display: flex;
             overflow-x: auto;
@@ -125,10 +126,12 @@
             justify-content: center;
             border: 1px solid var(--border);
             cursor: pointer;
+            transition: all 0.3s;
         }
         .day-bubble.active {
             background: var(--primary);
             color: white;
+            transform: scale(1.05);
         }
 
         .view-section {
@@ -145,7 +148,11 @@
             padding: 18px;
         }
 
-        #map { height: 100%; width: 100%; filter: grayscale(0.4) contrast(1.1); }
+        #map { 
+            height: 100%; 
+            width: 100%; 
+            filter: grayscale(0.4) contrast(1.1); 
+        }
 
         .bottom-nav {
             position: fixed;
@@ -180,11 +187,30 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 12px;
+            color: #94a3b8;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            transition: all 0.2s;
+        }
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Tela de Entrada Otimizada para Campo de Visao -->
+    <!-- Tela de Entrada Otimizada (Design Minimalista sem Labels) -->
     <div id="input-screen" class="input-overlay">
         <div class="config-card">
             <div class="flex items-center gap-4 mb-6">
@@ -193,14 +219,15 @@
                 </div>
                 <div>
                     <h2 class="text-2xl font-extrabold text-white tracking-tight">Para onde vamos?</h2>
-                    <p class="text-slate-400 text-xs">Roteiros inteligentes em segundos.</p>
+                    <p class="text-slate-400 text-xs font-semibold">Pesquisa inteligente em tempo real</p>
                 </div>
             </div>
             
             <div class="space-y-4">
-                <input type="text" id="user-origin" class="custom-input" placeholder="Onde você está? (Ex: Porto Alegre, RS)">
+                <!-- Inputs usando placeholders autoexplicativos -->
+                <input type="text" id="user-origin" class="custom-input" placeholder="De onde você está saindo? (Ex: Nova Hartz, RS)">
 
-                <textarea id="user-query" class="custom-input h-24 resize-none" placeholder="Qual o seu plano? (Ex: 5 dias em Gramado focados em gastronomia)"></textarea>
+                <textarea id="user-query" class="custom-input h-24 resize-none" placeholder="Qual o seu plano? (Ex: 5 dias em Gramado focados em culinária e pontos clássicos)"></textarea>
 
                 <div class="tier-selector">
                     <div id="tier-eco" onclick="setTier('econômico')" class="tier-option">💰 Econômico</div>
@@ -216,13 +243,14 @@
         </div>
     </div>
 
-    <!-- App Main UI -->
+    <!-- UI Principal do App -->
     <div id="main-app" class="hidden h-screen flex flex-col">
         <div class="day-carousel" id="day-selector"></div>
         <div class="flex-1 relative overflow-hidden">
+            <!-- Roteiro/Lista -->
             <section id="itinerary-view" class="view-section">
-                <button onclick="backToMenu()" class="mb-4 text-xs font-bold text-slate-500 flex items-center gap-1">
-                    <i data-lucide="chevron-left" class="w-3 h-3"></i> VOLTAR
+                <button onclick="backToMenu()" class="back-btn">
+                    <i data-lucide="chevron-left" class="w-4 h-4"></i> EDITAR VIAGEM
                 </button>
                 <div class="flex justify-between items-start mb-6">
                     <div>
@@ -231,26 +259,79 @@
                     </div>
                     <div class="bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800 text-[10px] font-bold" id="weather-val">--°</div>
                 </div>
+
                 <div id="day-content" class="space-y-4">
-                    <!-- Cards de conteudo similares ao anterior porem mais densos -->
-                    <div class="premium-card border-l-4 border-sky-500">
-                        <span class="text-[9px] font-black uppercase text-slate-500 block mb-1">Hospedagem</span>
-                        <h4 id="hotel-name" class="text-base font-bold text-white">...</h4>
-                        <div class="flex justify-between items-center mt-2 pt-2 border-t border-slate-800">
-                            <span id="hotel-price" class="text-lg font-black text-sky-500">R$ --</span>
+                    <!-- Card de Hospedagem Premium -->
+                    <div class="premium-card border-l-4 border-sky-500 relative">
+                        <div class="flex items-center gap-2 mb-3 text-slate-400">
+                            <i data-lucide="bed" class="w-4 h-4 text-sky-500"></i>
+                            <span class="text-[9px] font-black uppercase tracking-widest">Hospedagem Recomendada</span>
+                        </div>
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 id="hotel-name" class="text-base font-bold text-white leading-tight">...</h4>
+                                <p id="hotel-address" class="text-[11px] text-slate-400 mt-1">...</p>
+                            </div>
+                            <div class="text-right ml-4">
+                                <span class="block text-[8px] font-black text-slate-500 uppercase leading-none">Diária Est.</span>
+                                <span id="hotel-price" class="text-lg font-black text-sky-500">R$ --</span>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Card de Cronograma -->
                     <div class="premium-card">
-                        <span class="text-[9px] font-black uppercase text-slate-500 block mb-4">Programação</span>
+                        <div class="flex items-center gap-2 mb-4 text-slate-400">
+                            <i data-lucide="calendar" class="w-4 h-4 text-sky-500"></i>
+                            <span class="text-[9px] font-black uppercase tracking-widest">Programação Detalhada</span>
+                        </div>
                         <div id="timeline" class="space-y-4 border-l border-slate-800 ml-1 pl-4"></div>
+                    </div>
+
+                    <!-- Card de Custos -->
+                    <div id="budget-card" class="bg-gradient-to-br from-sky-600 to-blue-800 p-6 rounded-[24px] shadow-xl">
+                        <span class="text-[9px] text-white/80 font-black uppercase tracking-widest mb-3 block">Resumo do Dia</span>
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="bg-black/20 p-3 rounded-xl">
+                                <span class="text-[8px] text-white/60 block uppercase">Atividades</span>
+                                <span id="ticket-val" class="font-bold text-sm">R$ --</span>
+                            </div>
+                            <div class="bg-black/20 p-3 rounded-xl">
+                                <span class="text-[8px] text-white/60 block uppercase">Alimentação</span>
+                                <span id="meal-val" class="font-bold text-sm">R$ --</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-end border-t border-white/10 pt-3">
+                            <span class="text-[10px] font-bold text-white uppercase tracking-wider">Total Est.</span>
+                            <span id="total-val" class="text-xl font-black text-white">R$ --</span>
+                        </div>
                     </div>
                 </div>
             </section>
-            <section id="map-view" class="absolute inset-0 hidden"><div id="map"></div></section>
+
+            <!-- Visão do Mapa -->
+            <section id="map-view" class="absolute inset-0 hidden">
+                <div id="map"></div>
+                <div class="absolute bottom-6 left-6 right-6 z-[1000] bg-slate-900/95 backdrop-blur-md p-4 rounded-2xl border border-slate-800 flex justify-between items-center">
+                    <div>
+                        <span class="text-[9px] font-black text-sky-500 uppercase tracking-widest">Trajeto Diário</span>
+                        <p id="map-km" class="text-xs font-bold text-white">Calculando...</p>
+                    </div>
+                    <button onclick="switchTab('itinerary')" class="bg-white text-black text-[10px] font-black px-4 py-2 rounded-xl">VER LISTA</button>
+                </div>
+            </section>
         </div>
+
+        <!-- Navegação Inferior -->
         <nav class="bottom-nav">
-            <button onclick="switchTab('itinerary')" id="nav-itinerary" class="nav-btn active"><i data-lucide="compass"></i><span>ROTEIRO</span></button>
-            <button onclick="switchTab('map')" id="nav-map" class="nav-btn"><i data-lucide="map-pin"></i><span>MAPA</span></button>
+            <button onclick="switchTab('itinerary')" id="nav-itinerary" class="nav-btn active">
+                <i data-lucide="compass"></i>
+                <span>ROTEIRO</span>
+            </button>
+            <button onclick="switchTab('map')" id="nav-map" class="nav-btn">
+                <i data-lucide="map-pin"></i>
+                <span>MAPA</span>
+            </button>
         </nav>
     </div>
 
@@ -259,6 +340,20 @@
         let selectedTier = 'standard';
         let itineraryData = [];
         let map, markerGroup;
+
+        // Custom lúdico ícone de carro para o mapa
+        const carIcon = L.divIcon({
+            html: `
+                <div class="car-icon-container" style="background: white; padding: 5px; border-radius: 10px; border: 2px solid black; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
+                        <circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>
+                    </svg>
+                </div>`,
+            className: 'custom-car-marker',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
 
         function setTier(tier) {
             selectedTier = tier;
@@ -272,17 +367,34 @@
             const origin = document.getElementById('user-origin').value;
             const btn = document.getElementById('gen-btn');
             if (!query) return;
+
             btn.disabled = true;
             btn.innerHTML = '<div class="loader"></div>';
 
-            const systemPrompt = `Você é um agente de viagens. Retorne uma ARRAY JSON de objetos por dia: [{ "id": 1, "title": "...", "subtitle": "...", "weather": "20°", "hotel": {"name": "...", "price": "R$ ..."}, "timeline": ["08:00 - Atividade"], "total": "R$ ...", "coords": [[lat, lng]] }]`;
+            const systemPrompt = `Você é um guia de viagens profissional especializado em planejar roteiros precisos com dados reais.
+            IMPORTANTE: Analise a quantidade de dias solicitada pelo usuário (ex: se ele pediu 5 dias, você deve gerar exatamente uma array de 5 objetos).
+            Use a busca Google para obter tarifas de diárias reais de hotéis e atividades na cidade desejada.
+            
+            Retorne uma ARRAY de objetos JSON: [{ 
+                "id": 1, 
+                "title": "Dia X: Nome do Dia", 
+                "subtitle": "Breve conceito", 
+                "weather": "20°", 
+                "hotel": {"name": "Nome real", "address": "Endereço real", "price": "R$ Valor diária real"}, 
+                "timeline": ["08:00 - Atividade detalhada"], 
+                "ticket": "R$ Atividades", 
+                "meal": "R$ Refeições", 
+                "total": "R$ Total do dia", 
+                "km": "Xkm", 
+                "coords": [[lat, lng], [lat, lng]] 
+            }]`;
 
             try {
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: `Roteiro de ${query} saindo de ${origin}, perfil ${selectedTier}.` }] }],
+                        contents: [{ parts: [{ text: `Roteiro completo: ${query}. Origem: ${origin}. Perfil: ${selectedTier.toUpperCase()}. Certifique-se de obter todos os dias e preços reais do hotel.` }] }],
                         systemInstruction: { parts: [{ text: systemPrompt }] },
                         tools: [{ "google_search": {} }],
                         generationConfig: { responseMimeType: "application/json" }
@@ -292,6 +404,7 @@
                 itineraryData = JSON.parse(result.candidates[0].content.parts[0].text);
                 renderApp();
             } catch (e) {
+                console.warn("Usando Fallback de Demonstração (5 dias em Gramado)...", e);
                 itineraryData = mockData();
                 renderApp();
             } finally {
@@ -303,6 +416,7 @@
         function renderApp() {
             document.getElementById('input-screen').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
+            
             const selector = document.getElementById('day-selector');
             selector.innerHTML = itineraryData.map(day => `
                 <div onclick="loadDay(${day.id})" id="day-btn-${day.id}" class="day-bubble ${day.id === 1 ? 'active' : ''}">
@@ -310,6 +424,7 @@
                     <span class="text-lg font-black">${day.id}</span>
                 </div>
             `).join('');
+
             initMap();
             loadDay(1);
             lucide.createIcons();
@@ -318,25 +433,39 @@
         function loadDay(id) {
             const day = itineraryData.find(d => d.id === id);
             if(!day) return;
+            
             document.querySelectorAll('.day-bubble').forEach(b => b.classList.remove('active'));
             document.getElementById(`day-btn-${id}`).classList.add('active');
+
             document.getElementById('day-title').innerText = day.title;
             document.getElementById('day-subtitle').innerText = day.subtitle;
             document.getElementById('weather-val').innerText = day.weather;
             document.getElementById('hotel-name').innerText = day.hotel.name;
+            document.getElementById('hotel-address').innerText = day.hotel.address;
             document.getElementById('hotel-price').innerText = day.hotel.price;
-            document.getElementById('timeline').innerHTML = day.timeline.map(item => `
-                <div class="relative">
+            document.getElementById('ticket-val').innerText = day.ticket;
+            document.getElementById('meal-val').innerText = day.meal;
+            document.getElementById('total-val').innerText = day.total;
+            document.getElementById('map-km').innerText = `Distância: ${day.km}`;
+
+            const tl = document.getElementById('timeline');
+            tl.innerHTML = day.timeline.map(item => {
+                const parts = item.split(' - ');
+                return `
+                <div class="relative pl-1">
                     <div class="absolute -left-[21px] w-2 h-2 bg-sky-500 rounded-full"></div>
-                    <div class="text-sm font-bold text-white">${item}</div>
-                </div>`).join('');
+                    <div class="text-[10px] text-sky-500 font-black uppercase mb-1">${parts[0]}</div>
+                    <div class="text-xs font-bold text-white leading-normal">${parts[1] || ''}</div>
+                </div>`;
+            }).join('');
+
             updateMap(day.coords);
         }
 
         function initMap() {
             if (map) return;
             map = L.map('map', { zoomControl: false }).setView([0,0], 2);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
             markerGroup = L.layerGroup().addTo(map);
         }
 
@@ -344,9 +473,39 @@
             if (!map || !coords) return;
             markerGroup.clearLayers();
             const points = coords.map(c => L.latLng(c[0], c[1]));
-            points.forEach(p => L.circleMarker(p, { radius: 5, color: '#0ea5e9' }).addTo(markerGroup));
-            const poly = L.polyline(points, { color: '#0ea5e9', weight: 2, dashArray: '5, 5' }).addTo(markerGroup);
-            map.fitBounds(poly.getBounds(), { padding: [40, 40] });
+
+            // Desenhar traçado via rua na cor PRETA
+            const poly = L.polyline(points, { 
+                color: '#000000', 
+                weight: 5, 
+                opacity: 0.9, 
+                lineJoin: 'round' 
+            }).addTo(markerGroup);
+
+            // Contorno branco para maior contraste no mapa
+            L.polyline(points, {
+                color: '#ffffff',
+                weight: 9,
+                opacity: 0.4,
+                lineJoin: 'round'
+            }).addTo(markerGroup);
+
+            points.forEach((p, idx) => {
+                if (idx === points.length - 1) {
+                    // Marcador de carro alegre no último ponto
+                    L.marker(p, { icon: carIcon }).addTo(markerGroup);
+                } else {
+                    L.circleMarker(p, { 
+                        radius: 6, 
+                        color: '#000000', 
+                        weight: 3, 
+                        fillColor: '#ffffff', 
+                        fillOpacity: 1 
+                    }).addTo(markerGroup);
+                }
+            });
+
+            try { map.fitBounds(poly.getBounds(), { padding: [50, 50] }); } catch(e) {}
         }
 
         function switchTab(tab) {
@@ -363,12 +522,18 @@
         }
 
         function mockData() {
-            return [1,2,3,4,5].map(i => ({
-                id: i, title: `Gramado Dia ${i}`, subtitle: "Experiência Completa", weather: "15°",
-                hotel: { name: "Hotel Alpestre", price: "R$ 850" },
-                timeline: ["09:00 - Visita ao Lago Negro", "12:30 - Almoço Colonial", "15:00 - Mini Mundo"],
-                coords: [[-29.38, -50.87], [-29.39, -50.88]]
-            }));
+            const days = [];
+            const titles = ["Boas-vindas e Centro Histórico", "Passeios na Neve e Chocolate", "Culinária Colonial Italiana", "Parques e Natureza Exuberante", "Compras e Despedida"];
+            for(let i=1; i<=5; i++) {
+                days.push({
+                    id: i, title: titles[i-1], subtitle: `Gramado Especial - Dia ${i}`, weather: "14°",
+                    hotel: { name: "Wyndham Gramado Termas Resort", address: "Estrada Municipal Linha Avila, 801", price: "R$ 680" },
+                    timeline: ["09:00 - Atividade matinal sugerida", "12:30 - Almoço requintado local", "15:30 - Caminhada e pontos turísticos", "20:00 - Experiência gastronômica temática"],
+                    ticket: "R$ 140", meal: "R$ 180", total: "R$ 1.000", km: `${4 + i}km`,
+                    coords: [[-29.377, -50.873], [-29.380 + (i*0.001), -50.880]]
+                });
+            }
+            return days;
         }
 
         window.onload = () => lucide.createIcons();
